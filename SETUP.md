@@ -25,3 +25,9 @@ The script ledger MENTIONS_USAGE_V2 starts with this version and excludes previo
 Mocked tests passed for one API call, citation filtering, UTF-8 citation offsets, possible status, input validation, expired-request skip, thinking-inclusive cost and rate date change, and ledger updates. UI logic tests cover 30-second cutoff, late/stale result suppression and late usage updates. Syntax checked.
 
 Not yet live-tested with the user's key or deployed. Browser preview was unavailable: exact 1024 x 600 layout, DPR=2 and touch behavior still require visual verification. In-car acceptance requires JD's confirmation. Layout uses CSS, no canvas, six cards and a separate internally scrolling detail panel.
+
+## Name variants and dark card revision
+
+Gemini generates up to two plausible first-name variants in the same request, with surname unchanged. School is the primary context when supplied; hometown corroborates but is not required in every result. Variant names stay POSSIBLE unless a source explicitly connects the names. No extra fields or API calls. Match evidence identifies the actual name found.
+
+Visual update: near-black surfaces, restrained cyan/amber accents, uppercase category labels, separate status badges, larger fact text and quieter date metadata. Same form and results workflow. Logic and syntax checks passed again; visual and in-car verification remain pending.
