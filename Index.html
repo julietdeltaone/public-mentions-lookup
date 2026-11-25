@@ -1,173 +1,74 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<base target="_top">
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Public Mentions Lookup</title>
+<!doctype html>
+<html lang="en"><head><base target="_top"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Public Mentions</title>
 <style>
-:root{color-scheme:dark;--text:#eff4ff;--muted:#aab7cc;--line:rgba(215,230,255,.15);--accent:#b7d9ff}
-*{box-sizing:border-box}html,body{margin:0;height:100%;font-family:Arial,sans-serif;color:var(--text);background:#080c14}
-body{background:radial-gradient(ellipse at 15% 0%,#1c304c 0%,transparent 55%),radial-gradient(ellipse at 100% 100%,#202136 0%,transparent 50%),#080c14}
-button,input,a{font:inherit}button,a,input{-webkit-tap-highlight-color:transparent}button,a{touch-action:manipulation}
-button{cursor:pointer;color:inherit;border:1px solid var(--line);background:rgba(255,255,255,.06);border-radius:16px;min-height:50px;padding:12px 18px;font-size:17px}
-button:active{background:rgba(174,210,255,.2)}button:disabled{opacity:.45;cursor:default}:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
-.app{height:100vh;height:100dvh;display:flex;flex-direction:column;padding:20px 24px 14px;gap:16px;max-width:1500px;margin:auto}
-header{flex:none;display:flex;align-items:center;justify-content:space-between;gap:18px;height:58px}
-.brand{display:flex;align-items:center;gap:14px}.mark{width:42px;height:42px;border:1px solid #83a1c7;border-radius:14px;display:grid;place-items:center;font-size:26px;color:var(--accent);background:linear-gradient(145deg,#314964,#142236)}
-h1{font-size:24px;letter-spacing:-.6px;margin:0 0 5px}p{margin:0}header p,.subtle{font-size:15px;color:var(--muted)}
-main{display:grid;grid-template-columns:296px minmax(0,1fr);gap:18px;flex:1;min-height:0}
-.glass{background:linear-gradient(135deg,rgba(255,255,255,.085),rgba(255,255,255,.025));border:1px solid var(--line);border-radius:24px;box-shadow:inset 0 1px rgba(255,255,255,.06),0 18px 50px #0003;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
-.search{padding:20px;overflow:auto;min-height:0}form{display:flex;flex-direction:column;gap:14px}label{display:block;font-size:16px;color:#cbd7e8;margin-bottom:8px}
-input{width:100%;height:52px;background:#090f1c88;color:white;border:1px solid #42516a;border-radius:13px;padding:0 14px;font-size:18px;min-width:0}input::placeholder{color:#8797ad}
-.primary{color:#102139;background:linear-gradient(135deg,#d5eaff,#a8cbf5);font-weight:bold;border-color:#d5eaff;margin-top:4px;min-height:54px}.primary:active{background:#8bb7ef}
-.hint{font-size:15px;line-height:1.45;color:var(--muted)}
-.results{display:flex;flex-direction:column;min-height:0;padding:20px;gap:14px}.result-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex:none}h2{font-size:20px;margin:0}.result-head span{font-size:15px;color:var(--accent)}
-.stage{flex:1;min-height:0;position:relative}.empty{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;gap:16px}.orb{width:70px;height:70px;border:1px solid #597395;border-radius:23px;background:linear-gradient(135deg,#35547477,#14223877);box-shadow:inset 0 1px #b8d9ff33;display:grid;place-items:center;color:#c7e1ff;font-size:34px}.empty h3{font-size:25px;font-weight:500;margin:0}.empty p{font-size:17px;color:var(--muted);line-height:1.5;max-width:390px}
-.cards{height:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:10px}.card{text-align:left;padding:12px 14px;display:flex;flex-direction:column;justify-content:space-between;gap:5px;min-height:0;border-radius:16px;overflow:hidden;background:linear-gradient(120deg,#ccdfff0c,#ccdfff03)}
-.category{color:#a6c9f4;font-size:15px}.value{font-size:18px;line-height:1.22;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.date{color:var(--muted);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-footer{flex:none;display:flex;justify-content:space-between;gap:12px;font-size:14px;line-height:20px;color:var(--muted)}
-.spin{animation:pulse 1.3s ease-in-out infinite}@keyframes pulse{50%{opacity:.4;transform:scale(.94)}}
-.overlay{position:fixed;inset:0;z-index:10;background:#030711dc;padding:20px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(12px)}[hidden]{display:none!important}
-.dialog{width:min(850px,100%);max-height:100%;display:flex;flex-direction:column;overflow:hidden;padding:22px;gap:16px;background:#131e30}.dialog-head{display:flex;justify-content:space-between;align-items:center;gap:16px}.dialog-body{overflow:auto;min-height:0;overscroll-behavior:contain;font-size:18px;line-height:1.5}.dialog-body h3{font-size:26px;line-height:1.2;margin:0 0 16px}.dialog-body p{margin:10px 0}.dialog-body small{display:block;color:var(--muted);font-size:15px}.source{display:block;color:#c9e2ff;border:1px solid var(--line);border-radius:13px;padding:13px 16px;min-height:50px;margin-top:10px;overflow-wrap:anywhere;text-decoration:none}.nav{display:flex;justify-content:space-between;align-items:center;gap:12px;flex:none}.nav span{font-size:16px;color:var(--muted)}iframe{width:100%;height:160px;border:0;background:white;border-radius:12px;margin-top:16px}
-@media(max-width:700px){.app{padding:14px;gap:12px}header{height:auto;min-height:58px}h1{font-size:20px}header p{display:none}.mark{display:none}main{display:flex;flex-direction:column;overflow:auto}.search{flex:none;padding:16px}.results{min-height:440px;flex:none}.cards{min-height:330px}footer{font-size:12px}.dialog{padding:16px}}
-@media(max-height:520px) and (min-width:701px){.app{padding:10px 18px;gap:10px}header{height:44px}.search,.results{padding:14px}form{gap:9px}label{margin-bottom:5px}input{height:46px}.hint{font-size:14px}}
-@media(prefers-reduced-motion:reduce){.spin{animation:none}}
-</style>
-</head>
-<body>
+:root{color-scheme:dark;--muted:#b1c1d5;--line:#bcd8ff25;--blue:#b9d9ff}*{box-sizing:border-box}body{margin:0;color:#f2f6ff;background:radial-gradient(at 10% 0%,#253e5a,transparent 60%),radial-gradient(at 100% 100%,#272039,transparent 60%),#080d16;font-family:Arial,sans-serif}button,input,select{font:inherit}button,a{touch-action:manipulation}button{min-height:44px;border:1px solid var(--line);border-radius:13px;padding:9px 14px;background:#ffffff0a;color:inherit;cursor:pointer}button:active{background:#b9d9ff30}button:disabled{opacity:.45;cursor:default}:focus-visible{outline:3px solid #b9d9ff;outline-offset:2px}[hidden]{display:none!important}
+.app{height:100vh;height:100dvh;max-width:1450px;margin:auto;padding:16px 20px;display:flex;flex-direction:column;gap:12px}header{height:46px;flex:none;display:flex;align-items:center;justify-content:space-between}h1{font-size:25px;letter-spacing:-.7px;margin:0}h2{font-size:20px;margin:0}p{margin:0}.muted{color:var(--muted);font-size:14px;line-height:1.4}.glass{background:linear-gradient(140deg,#ffffff12,#ffffff05);border:1px solid var(--line);border-radius:22px;box-shadow:inset 0 1px #ffffff10,0 15px 40px #0003;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+main{display:grid;grid-template-columns:320px minmax(0,1fr);gap:14px;flex:1;min-height:0}.search{padding:16px;overflow:auto}form{display:flex;flex-direction:column;gap:12px}label{display:block;font-size:15px;color:var(--muted);margin-bottom:6px}input,select{width:100%;min-width:0;height:46px;border:1px solid #53647d;border-radius:12px;background:#091321bb;color:white;padding:0 12px;font-size:17px}input::placeholder{color:#95a6bc}.schools{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px}.schools button{font-size:15px;padding:9px 5px}.schools button[aria-pressed=true]{background:#b9d9ff;color:#0b2037;border-color:#e2efff}.city{display:grid;grid-template-columns:1fr 90px;gap:8px}select{appearance:none;padding-right:28px;background:#0b1727 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='m1 1 5 5 5-5' stroke='%23b9d9ff' fill='none' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 10px center}.primary{background:linear-gradient(120deg,#d9ecff,#a8caf4);color:#10243e;font-weight:bold;min-height:48px;font-size:18px}.results{padding:16px;display:flex;flex-direction:column;gap:12px;min-height:0}.row{display:flex;align-items:center;justify-content:space-between;gap:12px}.stage{flex:1;min-height:0}.empty{height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:16px;padding:16px}.empty h3{font-size:26px;font-weight:500;margin:0}.empty p{font-size:17px;line-height:1.5;color:var(--muted);max-width:440px}.empty .symbol{font-size:40px;color:var(--blue)}.cards{height:100%;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,minmax(0,1fr));gap:9px}.card{min-height:0;text-align:left;display:flex;flex-direction:column;gap:5px;justify-content:space-between;padding:11px 13px;overflow:hidden}.tag{color:#acd6ff;font-size:14px}.possible .tag{color:#f2cd8a}.value{font-size:18px;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.date{font-size:14px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bottom{min-height:44px;flex:none}.bottom p{flex:1}#suggestions{font-size:14px;padding:8px}.progress{height:4px;background:#ffffff12;border-radius:4px;overflow:hidden;flex:none}.progress i{display:block;height:100%;width:0;background:#b9d9ff}
+footer{flex:none;display:grid;grid-template-columns:1fr 1fr 1.35fr;gap:10px}footer button{text-align:left;padding:8px 12px;min-height:64px;border-radius:16px}footer small{display:block;color:var(--muted);font-size:14px;margin-bottom:5px}footer strong{font-size:17px;font-weight:500}meter{display:block;width:100%;height:6px;margin-top:6px}.overlay{position:fixed;inset:0;z-index:5;background:#040913e8;backdrop-filter:blur(15px);display:grid;place-items:center;padding:20px}.dialog{background:#142135;width:min(850px,100%);max-height:100%;padding:20px;display:flex;flex-direction:column;gap:16px}.content{overflow:auto;min-height:0;font-size:18px;line-height:1.5}.content h3{font-size:25px;margin:0 0 14px}.content p{margin:12px 0}.content small{font-size:14px;color:var(--muted)}.source{display:block;min-height:48px;padding:12px;color:#c4e2ff;border:1px solid var(--line);border-radius:12px;margin:10px 0;text-decoration:none;overflow-wrap:anywhere}.content iframe{width:100%;height:190px;border:0;background:white}.content input{max-width:180px}.spin{animation:pulse 1.3s infinite}@keyframes pulse{50%{opacity:.3}}@media(prefers-reduced-motion:reduce){.spin{animation:none}}@media(max-width:700px){.app{padding:12px}h1{font-size:22px}main{display:flex;flex-direction:column;overflow:auto}.search{flex:none}.results{min-height:430px}.cards{min-height:300px}footer{gap:6px}footer small{font-size:12px}footer strong{font-size:14px}.dialog{padding:14px}.row{gap:8px}}@media(max-height:520px) and (min-width:701px){.app{padding:10px;gap:8px}header{height:40px}footer button{min-height:54px}.search{padding:12px}form{gap:8px}}
+</style></head><body>
 <div class="app">
-  <header><div class="brand"><div class="mark" aria-hidden="true">⌕</div><div><h1>Public Mentions</h1><p>A little context. A clearer match.</p></div></div><button id="reset" type="button">New search</button></header>
-  <main>
-    <section class="search glass" aria-label="Search inputs">
-      <form id="form">
-        <div><label for="name">Full name</label><input id="name" placeholder="First and last name" maxlength="120" required autocomplete="off"></div>
-        <div><label for="school">School</label><input id="school" placeholder="College or university" maxlength="120" autocomplete="off"></div>
-        <div><label for="hometown">Hometown</label><input id="hometown" placeholder="Town, state" maxlength="120" autocomplete="off"></div>
-        <button class="primary" id="search" type="submit">Find public mentions</button>
-        <p class="hint">Add a school or hometown.<br>Both help narrow the match.</p>
-      </form>
-    </section>
-    <section class="results glass" aria-label="Search results" aria-busy="false">
-      <div class="result-head"><h2 id="heading">Public record, small details.</h2><span id="count">Up to 6 facts</span></div>
-      <div class="stage" id="stage" aria-live="polite"></div>
-      <p class="subtle" id="note">Dated mentions, with sources you can open.</p>
-    </section>
-  </main>
-  <footer><span>Public Mentions Lookup</span><span>Source-supported ≠ independently verified</span></footer>
+<header><div><h1>Public Mentions</h1><p class="muted">Quick lookup · one focused pass</p></div><button id="reset">New search</button></header>
+<main><section class="search glass"><form id="form">
+<div><label for="name">Full name</label><input id="name" required maxlength="120" placeholder="First and last name" autocomplete="off"></div>
+<div><label for="school">School · tap to select or clear</label><div class="schools">
+<button type="button" data-school="Clarkson University" aria-pressed="false">Clarkson</button><button type="button" data-school="SUNY Potsdam" aria-pressed="false">SUNY Potsdam</button><button type="button" data-school="SUNY Canton" aria-pressed="false">SUNY Canton</button><button type="button" data-school="St. Lawrence University" aria-pressed="false">St. Lawrence</button>
+</div><input id="school" maxlength="120" placeholder="Or type another school" autocomplete="off"></div>
+<div><label for="city">Hometown · city and state</label><div class="city"><input id="city" maxlength="120" placeholder="City / town" autocomplete="off"><select id="state" aria-label="Hometown state: New York first, bordering states next"><option value="NY">NY</option><option value="VT">VT</option><option value="MA">MA</option><option value="CT">CT</option><option value="NJ">NJ</option><option value="PA">PA</option><option value="NH">NH</option><option value="RI">RI</option><option value="ME">ME</option></select></div></div>
+<button class="primary" id="search">Find mentions</button><p class="muted">Aim: 25s · stop waiting at 30s.<br>Add a school or city. NY alone is not a clue.</p>
+</form></section>
+<section class="results glass" aria-busy="false"><div class="row"><h2 id="heading">A name and one clue.</h2><span id="clock" class="muted">Up to 6</span></div><div class="progress"><i id="progress"></i></div><div id="stage" class="stage" aria-live="polite"></div><div class="row bottom"><p id="note" class="muted">Supported and possible matches stay distinct.</p><button id="suggestions" hidden>Google Search</button></div></section></main>
+<footer><button id="tokensButton"><small>Last request · tokens</small><strong id="tokens">Not measured yet</strong></button><button id="costButton"><small>Last request · est. cost</small><strong id="cost">Not measured yet</strong></button><button id="budgetButton"><small id="budgetLabel">$5 tracker · not Google balance</small><strong id="balance">Loading usage…</strong><meter id="meter" min="0" max="5" value="5" aria-label="Estimated tracked budget remaining"></meter></button></footer>
 </div>
-<div class="overlay" id="overlay" hidden>
-  <section class="dialog glass" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
-    <div class="dialog-head"><h2 id="detailTitle">Source details</h2><button id="close" type="button">Close</button></div>
-    <div class="dialog-body" id="detail"></div>
-    <div class="nav"><button id="previous" type="button">Previous</button><span id="position"></span><button id="next" type="button">Next</button></div>
-  </section>
-</div>
+<div class="overlay" id="overlay" hidden><section class="dialog glass" role="dialog" aria-modal="true" aria-labelledby="detailTitle"><div class="row"><h2 id="detailTitle">Details</h2><button id="close">Close</button></div><div id="detail" class="content"></div><div class="row" id="navigation"><button id="previous">Previous</button><span id="position" class="muted"></span><button id="next">Next</button></div></section></div>
 <script>
-const $ = id => document.getElementById(id);
-let facts = [], searchHtml = '', selected = 0, busy = false, timer, started, lastFocus;
-function node(tag, text, cls) { const n = document.createElement(tag); if(text !== undefined) n.textContent = text; if(cls) n.className = cls; return n; }
-function empty(title, message, loading) {
-  const box = node('div', undefined, 'empty');
-  box.append(node('div', loading ? '◌' : '⌕', 'orb' + (loading ? ' spin' : '')), node('h3', title), node('p', message));
-  $('stage').replaceChildren(box);
-}
-function setBusy(value) {
-  busy = value; $('search').disabled = value; $('reset').disabled = value;
-  ['name','school','hometown'].forEach(id => $(id).disabled = value);
-  document.querySelector('.results').setAttribute('aria-busy', String(value));
-}
-function finish() { clearInterval(timer); setBusy(false); }
-function fail(error) {
-  finish(); $('heading').textContent = 'Search unavailable'; $('count').textContent = '';
-  empty('Let’s try that again.', String(error.message || error).replace(/^Error:\s*/, ''));
-  $('note').textContent = 'No result was counted. Your inputs are still here.';
-}
-function show(result) {
-  finish(); facts = (result && result.facts || []).slice(0,6); searchHtml = result.searchHtml || '';
-  $('heading').textContent = facts.length ? 'Source-supported mentions' : 'No supported match';
-  $('count').textContent = facts.length + (facts.length === 1 ? ' fact' : ' facts');
-  $('note').textContent = facts.length ? 'Tap a card for evidence and sources.' : 'Try the full school name or add the other location clue.';
-  if(!facts.length) { empty('No reliable result this time.', 'This does not mean no public mention exists. Try another school name or hometown.'); }
-  else {
-    const grid = node('div', undefined, 'cards');
-    facts.forEach((f,i) => {
-      const b = node('button', undefined, 'card'); b.type = 'button';
-      b.append(node('span',f.category,'category'),node('span',f.value,'value'),node('span',f.date,'date'));
-      b.onclick = () => openDetail(i); grid.append(b);
-    });
-    $('stage').replaceChildren(grid);
-  }
-  if(searchHtml) {
-    const b = node('button','Google Search suggestions'); b.type = 'button';
-    b.style.cssText = 'font-size:15px;min-height:44px;padding:8px 12px;margin-top:8px';
-    b.onclick = () => openDetail(-1); $('note').replaceChildren(document.createTextNode(facts.length ? 'Tap a card for evidence. ' : 'No supported facts. '),b);
-  }
-}
-$('form').onsubmit = event => {
-  event.preventDefault(); if(busy) return;
-  const input = {name:$('name').value.trim(),school:$('school').value.trim(),hometown:$('hometown').value.trim()};
-  if(input.name.split(/\s+/).length < 2 || (!input.school && !input.hometown)) {
-    empty('Add one more clue.', 'Enter a full name and either a school or hometown.'); return;
-  }
-  facts=[]; searchHtml=''; setBusy(true); started=Date.now();
-  $('heading').textContent='Searching public sources'; $('count').textContent='Working';
-  empty('Looking for a clear match.', 'Searching published mentions and checking citation links.', true);
-  $('note').textContent='This can take a minute or two.';
-  timer=setInterval(() => { const seconds=Math.floor((Date.now()-started)/1000); $('count').textContent=seconds+'s';
-    if(seconds>90) $('note').textContent='Still waiting for Google. Keep this page open.';
-  },1000);
-  if(!(window.google && google.script && google.script.run)) { fail({message:'Open the deployed Apps Script URL to run a live search.'}); return; }
-  google.script.run.withSuccessHandler(show).withFailureHandler(fail).lookupPerson(input);
+const $=id=>document.getElementById(id), money=n=>'$'+Number(n).toFixed(4);
+let facts=[],searchHtml='',selected=-1,ledger=null,busy=false,serial=0,active=null,focusBefore=null,budget=5;
+try{budget=Number(localStorage.getItem('mentionsBudget'))||5;}catch(_){}
+function el(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;}
+function empty(title,text,spin){const n=el('div',undefined,'empty');n.append(el('div',spin?'◌':'⌕','symbol'+(spin?' spin':'')),el('h3',title),el('p',text));$('stage').replaceChildren(n);}
+function schoolButtons(){document.querySelectorAll('[data-school]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.school===$('school').value)));}
+document.querySelectorAll('[data-school]').forEach(b=>b.onclick=()=>{$('school').value=$('school').value===b.dataset.school?'':b.dataset.school;schoolButtons();});$('school').oninput=schoolButtons;
+function controls(value){busy=value;document.querySelectorAll('#form input,#form select,#form button').forEach(n=>n.disabled=value);$('reset').disabled=value;document.querySelector('.results').setAttribute('aria-busy',String(value));}
+function stop(run){clearTimeout(run.timeout);clearInterval(run.interval);run.done=true;if(active===run)controls(false);}
+function cutoff(run){if(run.done)return;stop(run);$('heading').textContent='Stopped waiting at 30s';$('clock').textContent='30s';$('progress').style.width='100%';empty('No result within the time limit.','Google may still finish and charge for the request. Late results will not appear.');$('note').textContent='No retry was sent. Any late token usage will update below.';}
+function applyLedger(value){if(!value || (ledger && value.version<ledger.version))return;ledger=value;paintUsage();}
+function paintUsage(){$('budgetLabel').textContent='$'+budget+' tracker · not Google balance';if(!ledger)return;const u=ledger.last; $('tokens').textContent=u?u.tokens.toLocaleString():'Not reported';$('cost').textContent=u?money(u.tokenCost)+'–'+money(u.tokenCost+u.searchEstimate):'Unknown';const remaining=Math.max(0,budget-ledger.tokenCost-ledger.searchEstimate);$('balance').textContent='$'+remaining.toFixed(2)+' est. remaining'+(ledger.pending||ledger.unknown?' *':'');$('meter').max=budget;$('meter').value=remaining;}
+function clearView(){facts=[];searchHtml='';$('suggestions').hidden=true;$('progress').style.width='0%';}
+$('reset').onclick=()=>{if(busy)return;serial++;active=null;$('form').reset();schoolButtons();clearView();$('heading').textContent='A name and one clue.';$('clock').textContent='Up to 6';$('note').textContent='Supported and possible matches stay distinct.';empty('Start with a name.','Tap a local school, or add a hometown. One strong new detail is enough.');};
+$('form').onsubmit=e=>{
+ e.preventDefault();if(busy)return;const q={name:$('name').value.trim(),school:$('school').value.trim(),city:$('city').value.trim(),state:$('state').value};
+ if(q.name.split(/\s+/).length<2||(!q.school&&!q.city)){empty('Add a little context.','Enter a full name and a school or city.');return;}
+ clearView();controls(true);const run={id:++serial,start:performance.now(),done:false};active=run;q.deadline=Date.now()+30000;
+ $('heading').textContent='Searching public mentions';$('clock').textContent='0 / 30s';$('note').textContent='One narrow pass; no follow-up searches or automatic retries.';empty('Looking for one useful detail.','Results may be supported, possible, or unavailable.',true);
+ run.timeout=setTimeout(()=>cutoff(run),30000);run.interval=setInterval(()=>{const ms=performance.now()-run.start;if(ms>=30000){cutoff(run);return;}$('clock').textContent=Math.floor(ms/1000)+' / 30s';$('progress').style.width=(ms/300)+'%';},200);
+ if(!(window.google&&google.script&&google.script.run)){finishError(run,'Open the deployed Apps Script URL to search.');return;}
+ google.script.run.withSuccessHandler(r=>{
+   applyLedger(r.ledger);
+   if(run.id!==serial)return;
+   if(run.done||performance.now()-run.start>=30000||r.expired){cutoff(run);$('note').textContent='Google finished late. Usage updated; results discarded. You can search again.';return;}
+   stop(run);$('clock').textContent=((performance.now()-run.start)/1000).toFixed(1)+'s';
+   if(r.error){$('heading').textContent='Search unavailable';empty('No result this time.',r.error);return;}
+   facts=r.facts||[];searchHtml=r.searchHtml||'';$('suggestions').hidden=!searchHtml;
+   const supported=facts.filter(f=>f.status==='SUPPORTED').length;
+   $('heading').textContent=supported+' supported · '+(facts.length-supported)+' possible';$('note').textContent=r.note;
+   if(!facts.length){empty('No clear match in this pass.','A shallow search trades coverage for speed. Try a more specific school or town.');return;}
+   const grid=el('div',undefined,'cards');facts.forEach((f,i)=>{const b=el('button',undefined,'card'+(f.status==='POSSIBLE'?' possible':''));b.append(el('span',(f.status==='POSSIBLE'?'Possible':'Supported')+' · '+f.category,'tag'),el('span',f.value,'value'),el('span',f.date,'date'));b.onclick=()=>detail(i);grid.append(b);});$('stage').replaceChildren(grid);
+ }).withFailureHandler(err=>{finishError(run,err.message||String(err));refreshUsage();}).lookupPerson(q);
 };
-function openDetail(index) {
-  if($('overlay').hidden) lastFocus=document.activeElement;
-  selected=index; const body=$('detail'); body.replaceChildren();
-  if(index>=0) {
-    const f=facts[index]; $('detailTitle').textContent=f.category;
-    body.append(node('h3',f.value),node('p',f.date),node('small','Match evidence'),node('p',f.match),
-      node('small','Citation-linked AI summary · not a source quotation'),node('p',f.evidence));
-    f.sources.forEach(s => { if(!/^https:\/\//i.test(s.url)) return; const a=node('a','Open source · '+s.title,'source'); a.href=s.url; a.target='_blank'; a.rel='noopener noreferrer'; body.append(a); });
-  } else {
-    $('detailTitle').textContent='Google Search';
-    body.append(node('p','Search suggestions returned by Google.'));
-    const frame=document.createElement('iframe'); frame.title='Google Search suggestions';
-    frame.setAttribute('sandbox','allow-popups allow-popups-to-escape-sandbox'); frame.srcdoc=searchHtml; body.append(frame);
-  }
-  $('previous').disabled=index<=0; $('next').disabled=index<0 || index>=facts.length-1;
-  $('position').textContent=index<0?'Search suggestions':(index+1)+' / '+facts.length+' · Swipe to browse';
-  $('overlay').hidden=false; body.scrollTop=0; $('close').focus();
-}
-function closeDetail() { $('overlay').hidden=true; if(lastFocus) lastFocus.focus(); }
-$('close').onclick=closeDetail;
-$('previous').onclick=()=>{if(selected>0)openDetail(selected-1);};
-$('next').onclick=()=>{if(selected>=0 && selected<facts.length-1)openDetail(selected+1);};
-$('overlay').onclick=e=>{if(e.target===$('overlay'))closeDetail();};
-document.addEventListener('keydown',e=>{
-  if($('overlay').hidden)return;
-  if(e.key==='Escape')closeDetail();
-  if(e.key==='ArrowRight')$('next').click(); if(e.key==='ArrowLeft')$('previous').click();
-  if(e.key==='Tab') {
-    const items=Array.from($('overlay').querySelectorAll('button:not(:disabled),a,iframe'));
-    const first=items[0],last=items[items.length-1];
-    if(e.shiftKey && document.activeElement===first){e.preventDefault();last.focus();}
-    else if(!e.shiftKey && document.activeElement===last){e.preventDefault();first.focus();}
-  }
-});
-let touch=null;
-document.addEventListener('touchstart',e=>{if(e.touches.length===1)touch={x:e.touches[0].clientX,y:e.touches[0].clientY};},{passive:true});
-document.addEventListener('touchend',e=>{
-  if(!touch || !e.changedTouches.length)return;
-  const dx=e.changedTouches[0].clientX-touch.x,dy=e.changedTouches[0].clientY-touch.y; touch=null;
-  if(!$('overlay').hidden && Math.abs(dx)>70 && Math.abs(dx)>Math.abs(dy)*1.5) { if(dx<0)$('next').click();else $('previous').click(); }
-},{passive:true});
-$('reset').onclick=()=>{
-  if(busy)return; $('form').reset();facts=[];searchHtml='';closeDetail();
-  $('heading').textContent='Public record, small details.'; $('count').textContent='Up to 6 facts';
-  $('note').textContent='Dated mentions, with sources you can open.';
-  empty('Start with a name.', 'Add a school or hometown. We’ll look for a small number of useful, sourced details.');
-};
-$('reset').click();
-</script>
-</body>
-</html>
+function finishError(run,message){if(run.id!==serial)return;if(run.done||performance.now()-run.start>=30000){cutoff(run);return;}stop(run);$('heading').textContent='Search unavailable';empty('No result this time.',message);$('note').textContent='No automatic retry. Inputs are preserved.';}
+function refreshUsage(){if(window.google&&google.script&&google.script.run)google.script.run.withSuccessHandler(applyLedger).withFailureHandler(()=>{$('balance').textContent='Usage unavailable';}).getLookupUsage();else $('balance').textContent='Open deployed app';}
+function openPanel(title){if($('overlay').hidden)focusBefore=document.activeElement;$('detailTitle').textContent=title;$('detail').replaceChildren();$('overlay').hidden=false;$('close').focus();$('detail').scrollTop=0;}
+function detail(i){selected=i;const f=facts[i];openPanel(f.status==='POSSIBLE'?'Possible match · not confirmed':'Source-supported · AI matched');$('navigation').hidden=false;const d=$('detail');d.append(el('h3',f.value),el('p',f.date),el('small','Why this match'),el('p',f.match),el('small','Citation-linked AI summary, not a source quotation'),el('p',f.evidence));f.sources.forEach(s=>{if(!/^https:\/\//i.test(s.url))return;const a=el('a','Open source · '+s.title,'source');a.href=s.url;a.target='_blank';a.rel='noopener noreferrer';d.append(a);});$('position').textContent=(i+1)+' / '+facts.length+' · Swipe';$('previous').disabled=i===0;$('next').disabled=i===facts.length-1;}
+$('previous').onclick=()=>{if(selected>0)detail(selected-1);};$('next').onclick=()=>{if(selected>=0&&selected<facts.length-1)detail(selected+1);};
+$('suggestions').onclick=()=>{selected=-1;openPanel('Google Search suggestions');$('navigation').hidden=true;const f=document.createElement('iframe');f.title='Google Search suggestions';f.setAttribute('sandbox','allow-popups allow-popups-to-escape-sandbox');f.srcdoc=searchHtml;$('detail').append(f);};
+function usagePanel(){selected=-1;openPanel('Usage & cost estimates');$('navigation').hidden=true;const d=$('detail');d.append(el('p','Tokens are reported by Google after completion, including thinking tokens. Cost is estimated, not a bill. No live token count is available during the request.'));
+ if(ledger){const u=ledger.last;if(u)d.append(el('p','Last: '+u.input+' input/tool tokens, '+u.output+' output/thinking tokens; '+u.queries+' reported search queries.'));d.append(el('p','Tracked: '+ledger.attempts+' attempts; '+ledger.tokens+' reported tokens. Estimated spend '+money(ledger.tokenCost)+'–'+money(ledger.tokenCost+ledger.searchEstimate)+'.'),el('p',ledger.unknown+' attempts have unknown cost. '+(ledger.pending?'One request is still pending.':'')),el('p','Tracking began '+new Date(ledger.since).toLocaleString()+'. Earlier tests, other apps, taxes and account-wide usage are excluded.'));}
+ d.append(el('p','Range assumes either search allowance covers queries or each reported query costs $0.014. Query metadata may not equal billable searches, so this is not a guaranteed ceiling. Gemini 3.8 Flash tokens: $0.75/M input and $3.75/M output through Dec 31, 2026; $1.50/$7.50 afterward.'),el('p','The browser stops waiting at 30 seconds. Apps Script cannot cancel a Google request already running; late usage is still tracked.'));
+ const label=el('label','Tracker starting budget ($)');label.htmlFor='budget';const input=el('input');input.id='budget';input.type='number';input.min='.01';input.step='.01';input.value=budget;const save=el('button','Save tracker budget');save.onclick=()=>{const n=Number(input.value);if(!Number.isFinite(n)||n<=0)return;budget=n;try{localStorage.setItem('mentionsBudget',String(n));}catch(_){}paintUsage();closePanel();};d.append(label,input,save);const a=el('a','Open Google usage and billing','source');a.href='https://aistudio.google.com/usage';a.target='_blank';a.rel='noopener noreferrer';d.append(a);}
+['tokensButton','costButton','budgetButton'].forEach(id=>$(id).onclick=usagePanel);
+function closePanel(){$('overlay').hidden=true;if(focusBefore)focusBefore.focus();}$('close').onclick=closePanel;$('overlay').onclick=e=>{if(e.target===$('overlay'))closePanel();};
+document.addEventListener('keydown',e=>{if($('overlay').hidden)return;if(e.key==='Escape')closePanel();if(selected>=0&&e.key==='ArrowLeft')$('previous').click();if(selected>=0&&e.key==='ArrowRight')$('next').click();if(e.key==='Tab'){const a=[...$('overlay').querySelectorAll('button:not(:disabled),a,input,iframe')].filter(n=>n.getClientRects().length);const first=a[0],last=a[a.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
+let touch;document.addEventListener('touchstart',e=>{touch=e.touches.length===1?{x:e.touches[0].clientX,y:e.touches[0].clientY}:null;},{passive:true});document.addEventListener('touchcancel',()=>touch=null,{passive:true});document.addEventListener('touchend',e=>{if(!touch||!e.changedTouches.length)return;const dx=e.changedTouches[0].clientX-touch.x,dy=e.changedTouches[0].clientY-touch.y;touch=null;if(!$('overlay').hidden&&selected>=0&&Math.abs(dx)>70&&Math.abs(dx)>1.5*Math.abs(dy))$(dx<0?'next':'previous').click();},{passive:true});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&active&&!active.done&&performance.now()-active.start>=30000)cutoff(active);});
+$('reset').click();refreshUsage();
+</script></body></html>
